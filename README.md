@@ -8,8 +8,10 @@ These tutorials mainly use NumPy and OpenCV for image and data manipulation.
     - [x] Spatial Filtering
     - [ ] Frequency Filtering
 - Noise
-    - [ ] Types of Noise
-    - [ ] Noise Removal
+    - [x] Types of Noise
+    - [ ] Image degredation
+    - [ ] Noise removal
+    - [ ] Image Restoration
 - Image and Media Formats
     - [ ] Image Representation
     - [ ] Redundant Data
