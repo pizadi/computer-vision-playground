@@ -1,4 +1,5 @@
 import numpy as np
+import cv2 as cv
 from numpy import random
 from typing import Union, Iterable
 
@@ -422,4 +423,36 @@ def adaptiveFilterRef(image : np.ndarray, kernel_shape : Iterable[int], base_std
     coeff = np.clip(base_std**2 / std**2, 0., 1.)
     mean = np.mean(view, axis=-1)
     output = image - coeff * (image - mean)
+    return output
+
+def bilateralFilterRef(image : np.ndarray, kernel_shape : Iterable[int], spatial_sigma : float, intensity_sigma : float) -> np.ndarray:
+    """
+    Parameters:
+    - image : np.ndarray
+        An image on which the bilateral filter will be applied. Should be an np.ndarray
+        with dtype=np.float64.
+    - kernel_shape : Iterable[int]
+        An Iterable of two positive integers which determines the size of the kernel.
+    - spatial_sigma : float [0 inf)
+        The sigma value for the spatial smoothing fucntion. Should be a non-negative
+        number.
+    - intensity_sigma : float [0 inf)
+        The sigma value for the intensity smoothing fucntion. Should be a non-negative
+        number.
+    Returns:
+    - output : np.ndarray
+        The filtered image, which should be an 2-dimensional np.ndarray with
+        dtype=np.float64.
+    """
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
+    all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
+    assert (isinstance(spatial_sigma, int) or isinstance(spatial_sigma, float)) and spatial_sigma >= 0, 'Parameter \'spatial_sigma\' should be a non-negative number.'
+    assert (isinstance(intensity_sigma, int) or isinstance(intensity_sigma, float)) and intensity_sigma >= 0, 'Parameter \'intensity_sigma\' should be a non-negative number.'
+
+    view = kernelViewRef(image, kernel_shape)
+    spatial_kernel = (cv.getGaussianKernel(kernel_shape[0], spatial_sigma) @ cv.getGaussianKernel(kernel_shape[1], spatial_sigma).T)[np.newaxis,np.newaxis,:,:]
+    gaussian = lambda z, sigma : np.exp(- z**2 / sigma**2 / 2)
+    intensity_function = gaussian(view - image[:,:,np.newaxis,np.newaxis], intensity_sigma)
+    output = np.sum(spatial_kernel * intensity_function * view, axis=(-1, -2)) / np.sum(spatial_kernel * intensity_function, axis=(-1, -2))
     return output
