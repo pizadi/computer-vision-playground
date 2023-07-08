@@ -8,9 +8,10 @@ These notebooks mainly use NumPy and OpenCV for image and data manipulation. A l
     - [x] Spatial Filtering
     - [ ] Frequency Filtering
 - Noise
-    - [ ] Types of Noise
-    - [ ] Image degredation
-    - [ ] Noise removal
+    - [x] Random Noise
+    - [ ] Periodic Noise
+    - [ ] Image Degredation
+    - [ ] Noise Removal
     - [ ] Image Restoration
 - Image and Media Formats
     - [ ] Image Representation

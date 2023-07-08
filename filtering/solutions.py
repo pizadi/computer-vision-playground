@@ -1,17 +1,18 @@
 import numpy as np
 import cv2 as cv
+from typing import Iterable
 
-def meanKernelRef(kernel_size : tuple[int, int]) -> np.ndarray:
+def meanKernelRef(kernel_size : Iterable[int]) -> np.ndarray:
     """
     Parameters:
-    - kernel_size : tuple[int, int]
-        A tuple of two integers, which determines the size of the kernel.
+    - kernel_size : Iterable[int, int]
+        An Iterable of two integers, which determines the size of the kernel.
     Returns:
     - kernel : np.ndarray
         A mean kernel in np.ndarray format, with the specified size,
-        and with dtype=np.float32.
+        and with dtype=np.float64.
     """
-    if not isinstance(kernel_size, tuple) or len(kernel_size) != 2 or not isinstance(kernel_size[0], int) or not isinstance(kernel_size[1], int):
+    if not isinstance(kernel_size, Iterable) or len(kernel_size) != 2 or not isinstance(kernel_size[0], int) or not isinstance(kernel_size[1], int):
         raise TypeError(f'Parameter \'kernel_size\' should be a tuple of two integers.')
         
     if kernel_size[0] <= 0 or kernel_size[1] <= 0:
@@ -21,17 +22,17 @@ def meanKernelRef(kernel_size : tuple[int, int]) -> np.ndarray:
     kernel = kernel / np.sum(kernel)
     return kernel
 
-def gaussianKernelRef(kernel_size : tuple[int, int], sigma : float) -> np.ndarray:
+def gaussianKernelRef(kernel_size : Iterable[int], sigma : float) -> np.ndarray:
     """
     Parameters:
-    - kernel_size : tuple[int, int]
-        A tuple of two integers, which determines the size of the kernel.
+    - kernel_size : Iterable[int]
+        An Iterable of two integers, which determines the size of the kernel.
     - sigma : float
         The sigma parameter in the gaussian distribution.
     Returns:
     - kernel : np.ndarray
         A gaussian kernel in np.ndarray format, with the specified size,
-        and with dtype=np.float32.
+        and with dtype=np.float64.
     """
     if not isinstance(kernel_size, tuple) or len(kernel_size) != 2 or not isinstance(kernel_size[0], int) or not isinstance(kernel_size[1], int):
         raise TypeError(f'Parameter \'kernel_size\' should be a tuple of two integers.')
@@ -59,7 +60,7 @@ def derivateKernelRef(direction : str, mode : str) -> np.ndarray:
     Returns:
     - kernel : np.ndarray
         A derivative kernel in np.ndarray format, with the specified 
-        characteristics and with dtype=np.float32.
+        characteristics and with dtype=np.float64.
     """
     if direction != 'h' and direction != 'v':
         raise ValueError(f'Parameter \'direction\' should be either \'h\' or \'v\'.')
@@ -80,18 +81,18 @@ def gradientMapRef(image : np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     Parameters:
     - image : np.ndarray
-        An image in np.ndarray format, with dtype=np.float32.
+        An image in np.ndarray format, with dtype=np.float64.
         
     Returns
     - gradient_magnitude : np.ndarray
-        An np.ndarray representation of gradient magnitudes, with dtype=np.float32.
+        An np.ndarray representation of gradient magnitudes, with dtype=np.float64.
     - gradient_orientation : np.ndarray
         An np.ndarray representation of gradient orientations. Values can range from
-        -pi to +pi. Should also have dtype=np.float32.
+        -pi to +pi. Should also have dtype=np.float64.
     
     """
-    if not isinstance(image, np.ndarray) or image.dtype != np.float32:
-        raise TypeError(f'parameter \'image\' should be an np.ndarray with dtype=np.float32.')
+    if not isinstance(image, np.ndarray) or image.dtype != np.float64:
+        raise TypeError(f'parameter \'image\' should be an np.ndarray with dtype=np.float64.')
         
     dx_kernel = derivateKernelRef('h', 'f')
     dy_kernel = derivateKernelRef('v', 'f')
@@ -117,7 +118,7 @@ def smoothDerivativeKernelRef(direction : str, kernel_type : str, radius : int, 
     Returns:
     - kernel : np.ndarray
         A kernel in np.ndarray format, with the specified characteristics and with
-        dtype=np.float32.
+        dtype=np.float64.
     """
     if not isinstance(radius, int):
         raise TypeError(f'Parameter \'radius\' should be an integer.')
@@ -154,12 +155,12 @@ def secondDerivateKernelRef(direction : str) -> np.ndarray:
     Returns:
     - kernel : np.ndarray
         A derivative kernel in np.ndarray format, with the specified 
-        characteristics and with dtype=np.float32.
+        characteristics and with dtype=np.float64.
     """
     if direction != 'h' and direction != 'v':
         raise ValueError(f'Parameter \'direction\' should be either \'h\' or \'v\'.')
 
-    kernel = np.array([[1, -2, 1]], dtype=np.float32)
+    kernel = np.array([[1, -2, 1]], dtype=np.float64)
 
     if direction == 'v':
         kernel = kernel.T
@@ -174,7 +175,7 @@ def laplacianKernelRef(alpha : float) -> np.ndarray:
     Returns:
     - kernel : np.ndarray
         A Laplacian kernel in np.ndarray format, with the specified direction and
-        with dtype=np.float32.
+        with dtype=np.float64.
     """
     if not isinstance(alpha, int) and not isinstance(alpha, float):
         raise TypeError(f'Parameter \'alpha\' should be a float or an integer.')
