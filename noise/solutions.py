@@ -433,11 +433,11 @@ def bilateralFilterRef(image : np.ndarray, kernel_shape : Iterable[int], spatial
         with dtype=np.float64.
     - kernel_shape : Iterable[int]
         An Iterable of two positive integers which determines the size of the kernel.
-    - spatial_sigma : float [0 inf)
-        The sigma value for the spatial smoothing fucntion. Should be a non-negative
+    - spatial_sigma : float (0 inf)
+        The sigma value for the spatial smoothing fucntion. Should be a positive
         number.
-    - intensity_sigma : float [0 inf)
-        The sigma value for the intensity smoothing fucntion. Should be a non-negative
+    - intensity_sigma : float (0 inf)
+        The sigma value for the intensity smoothing fucntion. Should be a positive
         number.
     Returns:
     - output : np.ndarray
@@ -447,8 +447,8 @@ def bilateralFilterRef(image : np.ndarray, kernel_shape : Iterable[int], spatial
     assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
-    assert (isinstance(spatial_sigma, int) or isinstance(spatial_sigma, float)) and spatial_sigma >= 0, 'Parameter \'spatial_sigma\' should be a non-negative number.'
-    assert (isinstance(intensity_sigma, int) or isinstance(intensity_sigma, float)) and intensity_sigma >= 0, 'Parameter \'intensity_sigma\' should be a non-negative number.'
+    assert (isinstance(spatial_sigma, int) or isinstance(spatial_sigma, float)) and spatial_sigma > 0, 'Parameter \'spatial_sigma\' should be a positive number.'
+    assert (isinstance(intensity_sigma, int) or isinstance(intensity_sigma, float)) and intensity_sigma > 0, 'Parameter \'intensity_sigma\' should be a positive number.'
 
     view = kernelViewRef(image, kernel_shape)
     spatial_kernel = (cv.getGaussianKernel(kernel_shape[0], spatial_sigma) @ cv.getGaussianKernel(kernel_shape[1], spatial_sigma).T)[np.newaxis,np.newaxis,:,:]
@@ -457,3 +457,33 @@ def bilateralFilterRef(image : np.ndarray, kernel_shape : Iterable[int], spatial
     output = np.sum(spatial_kernel * intensity_function * view, axis=(-1, -2)) / np.sum(spatial_kernel * intensity_function, axis=(-1, -2))
     return output
     
+def noiseGeneratorRef(noise_shape : Iterable[int], s : float) -> np.ndarray:
+    """
+    Parameters:
+    - noise_shape : Iterable[int]
+        An iterable of two positive integers. Determines the size of the
+        generated noise pattern.
+    - s : float
+        The parameter s in the PDF of the noise. Should be a positive 
+        float.
+    Returns:
+    - noise: np.ndarray
+        The generated noise, with dtype=float64.
+    """
+    assert isinstance(noise_shape, Iterable) and len(noise_shape) == 2 and \
+    all(isinstance(d, int) and d > 0 for d in noise_shape), 'Parameter \'noise_shape\' should be an Iterable of two positive integers.'
+    assert (isinstance(s, int) or isinstance(s, float)) and s > 0, 'Parameter \'s\' should be a positive number.'
+
+    z = np.linspace(-10, 10, 256*20 + 1)
+    
+    g1 = np.sin(np.pi * (z / s - 2))**2 / (z - 2 * s)**2
+    g2 = np.sin(np.pi * (- z / s - 2))**2 / (z + 2 * s)**2
+
+    noise_pdf = g1 + g2
+    noise_cdf = np.cumsum(noise_pdf) / np.sum(noise_pdf)
+
+    noise = np.random.rand(*noise_shape)
+    noise = np.searchsorted(noise_cdf, noise)
+    noise = z[noise]
+
+    return noise
