@@ -12,12 +12,9 @@ def meanKernelRef(kernel_size : Iterable[int]) -> np.ndarray:
         A mean kernel in np.ndarray format, with the specified size,
         and with dtype=np.float64.
     """
-    if not isinstance(kernel_size, Iterable) or len(kernel_size) != 2 or not isinstance(kernel_size[0], int) or not isinstance(kernel_size[1], int):
-        raise TypeError(f'Parameter \'kernel_size\' should be a tuple of two integers.')
-        
-    if kernel_size[0] <= 0 or kernel_size[1] <= 0:
-        raise ValueError(f'Parameter \'kernel_size\' should be a tuple of two positive integers.')
-        
+    assert isinstance(kernel_size, Iterable) and len(kernel_size) == 2 and \
+    all(isinstance(s, int) and s > 0 for s in kernel_size), 'Parameter \'kernel_size\' should be an Iterable of two positive integers.'
+    
     kernel = np.ndarray(kernel_size)
     kernel = kernel / np.sum(kernel)
     return kernel
@@ -34,15 +31,9 @@ def gaussianKernelRef(kernel_size : Iterable[int], sigma : float) -> np.ndarray:
         A gaussian kernel in np.ndarray format, with the specified size,
         and with dtype=np.float64.
     """
-    if not isinstance(kernel_size, tuple) or len(kernel_size) != 2 or not isinstance(kernel_size[0], int) or not isinstance(kernel_size[1], int):
-        raise TypeError(f'Parameter \'kernel_size\' should be a tuple of two integers.')
-    if not (isinstance(sigma, int) or isinstance(sigma, float)):
-        raise TypeError(f'Parameter \'sigma\' should be a float or an integer for Sobel kernels.')
-
-    if kernel_size[0] <= 0 or kernel_size[1] <= 0:
-        raise ValueError(f'Parameter \'kernel_size\' should be a tuple of two positive integers.')
-    if sigma <= 0:
-        raise ValueError(f'Parameter \'sigma\' should be larger than zero.')
+    assert isinstance(kernel_size, Iterable) and len(kernel_size) == 2 and \
+    all(isinstance(s, int) and s > 0 for s in kernel_size), 'Parameter \'kernel_size\' should be an Iterable of two positive integers.'
+    assert (isinstance(sigma, int) or isinstance(sigma, float)) and sigma > 0, 'Parameter \'sigma\' should be a positive number.'
         
     h, w = kernel_size
     kernel_i, kernel_j = cv.getGaussianKernel(h, sigma), cv.getGaussianKernel(w, sigma).T
@@ -62,10 +53,8 @@ def derivateKernelRef(direction : str, mode : str) -> np.ndarray:
         A derivative kernel in np.ndarray format, with the specified 
         characteristics and with dtype=np.float64.
     """
-    if direction != 'h' and direction != 'v':
-        raise ValueError(f'Parameter \'direction\' should be either \'h\' or \'v\'.')
-    if mode != 'c' and mode != 'f':
-        raise ValueError(f'Parameter \'mode\' should be either \'c\' or \'f\'.')
+    assert direction == 'h' or direction == 'v', 'Parameter \'direction\' should be in [\'h\' | \'v\'].'
+    assert mode == 'c' or mode == 'f', 'Parameter \'mode\' should be in [\'c\' | \'f\'].'
 
     if mode == 'c':
         kernel = np.array([[-1, 0, 1]])
@@ -91,13 +80,12 @@ def gradientMapRef(image : np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         -pi to +pi. Should also have dtype=np.float64.
     
     """
-    if not isinstance(image, np.ndarray) or image.dtype != np.float64:
-        raise TypeError(f'parameter \'image\' should be an np.ndarray with dtype=np.float64.')
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
         
     dx_kernel = derivateKernelRef('h', 'f')
     dy_kernel = derivateKernelRef('v', 'f')
-    dx = cv.filter2D(image, cv.CV_32F, dx_kernel)
-    dy = cv.filter2D(image, cv.CV_32F, dy_kernel)
+    dx = cv.filter2D(image, cv.CV_64F, dx_kernel)
+    dy = cv.filter2D(image, cv.CV_64F, dy_kernel)
     gradient_magnitude = np.sqrt(dx**2 + dy**2)
     gradient_orientation = np.arctan2(dy, dx)
     return gradient_magnitude, gradient_orientation
@@ -120,20 +108,12 @@ def smoothDerivativeKernelRef(direction : str, kernel_type : str, radius : int, 
         A kernel in np.ndarray format, with the specified characteristics and with
         dtype=np.float64.
     """
-    if not isinstance(radius, int):
-        raise TypeError(f'Parameter \'radius\' should be an integer.')
-    if kernel_type == 'g' and not (isinstance(radius, int) or isinstance(radius, float)):
-        raise TypeError(f'Parameter \'sigma\' should be a float or an integer for Sobel kernels.')
-        
-    if direction != 'h' and direction != 'v':
-        raise ValueError(f'Parameter \'direction\' should be either \'h\' or \'v\'.')
-    if kernel_type != 'g' and kernel_type != 'm':
-        raise ValueError(f'Parameter \'kernel_type\' should be either \'g\' or \'m\'.')
-    if radius <= 0:
-        raise ValueError(f'Parameter \'radius\' should be a positive integer.')
-    if kernel_type == 'g' and sigma <= 0:
-        raise ValueError(f'Parameter \'sigma\' should be larger than zero.')
-
+    assert direction == 'h' or direction == 'v', 'Parameter \'direction\' should be in [\'h\' | \'v\'].'
+    assert kernel_type == 'g' or kernel_type == 'm', 'Parameter \'kernel_type\' should be in [\'g\' | \'m\'].'
+    assert isinstance(radius, int) and radius > 0, 'Parameter \'radius\' should be a positive integer.'
+    assert (kernel_type == 'm' and sigma == None) or ((isinstance(sigma, float) or isinstance(sigma, int)) and sigma > 0),\
+    'Parameter \'sigma\' should be a positive number when \'kernel_type\' is \'g\', and should be left empty if \'kernel_type\' is \'m\'.'
+    
     if kernel_type == 'g':
         smoothing_kernel = cv.getGaussianKernel(radius, sigma)
     else:
@@ -157,8 +137,7 @@ def secondDerivateKernelRef(direction : str) -> np.ndarray:
         A derivative kernel in np.ndarray format, with the specified 
         characteristics and with dtype=np.float64.
     """
-    if direction != 'h' and direction != 'v':
-        raise ValueError(f'Parameter \'direction\' should be either \'h\' or \'v\'.')
+    assert direction == 'h' or direction == 'v', 'Parameter \'direction\' should be in [\'h\' | \'v\'].'
 
     kernel = np.array([[1, -2, 1]], dtype=np.float64)
 
@@ -177,10 +156,8 @@ def laplacianKernelRef(alpha : float) -> np.ndarray:
         A Laplacian kernel in np.ndarray format, with the specified direction and
         with dtype=np.float64.
     """
-    if not isinstance(alpha, int) and not isinstance(alpha, float):
-        raise TypeError(f'Parameter \'alpha\' should be a float or an integer.')
-    if alpha > 1 or alpha < 0:
-        raise ValueError(f'Parameter \'direction\' should be in [0 1].')
+    assert (isinstance(alpha, float) or isinstance(alpha, int)) and alpha <= 1 and alpha >= 0, 'Parameter \'alpha\' should be a number in [0 1].'
+    
     kernel = np.arange(3).reshape(3, 1) + np.arange(3).reshape(1, 3)
     kernel = alpha * (kernel % 2 == 0) + (1 - alpha) * (kernel % 2 == 1)
     kernel[1,1] = -4
@@ -197,10 +174,8 @@ def sharpeningLPRef(image : np.ndarray, c : float) -> np.ndarray:
     - output : np.ndarray
         A sharpened version of image.
     """
-    if not isinstance(c, int) and not isinstance(c, float):
-        raise TypeError(f'Parameter \'c\' should be a float or an integer.')
-    if c < 0:
-        raise ValueError(f'Parameter \'direction\' should be a non-negative number.')
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert (isinstance(c, float) or isinstance(c, int)) and c >= 0, 'Parameter \'direction\' should be a non-negative number.'
         
     image_lp = cv.blur(image, (5, 5))
     output = (1 + c) * image - c * image_lp
@@ -217,13 +192,11 @@ def sharpeningUnsharpRef(image : np.ndarray, c : float) -> np.ndarray:
     - output : np.ndarray
         A sharpened version of image.
     """
-    if not isinstance(c, int) and not isinstance(c, float):
-        raise TypeError(f'Parameter \'c\' should be a float or an integer.')
-    if c < 0:
-        raise ValueError(f'Parameter \'direction\' should be a non-negative number.')
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert (isinstance(c, float) or isinstance(c, int)) and c >= 0, 'Parameter \'direction\' should be a non-negative number.'
 
     kernel = laplacianKernelRef(0)
-    image_lap = cv.filter2D(image, cv.CV_32F, kernel)
+    image_lap = cv.filter2D(image, cv.CV_64F, kernel)
     output = image - c * image_lap
     np.clip(output, 0., 1.)
     return output

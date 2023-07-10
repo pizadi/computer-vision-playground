@@ -6,7 +6,7 @@ import cv2 as cv
 def gaussianNoise(image : np.ndarray, sigma : float) -> np.ndarray:
     assert isinstance(image, np.ndarray) and image.dtype == np.float64 and image.ndim == 2, 'Parameter \'image\' should be a valid np.ndarray image with dtype=np.float64.'
     assert (isinstance(sigma, float) or isinstance(sigma, int)) and sigma >= 0, 'Parameter \'sigma\' should be a non-negative number.'
-    noise = np.float64(np.random.normal(0, sigma, size=I.shape))
+    noise = np.float64(np.random.normal(0, sigma, size=image.shape))
     output = image + noise
     output = np.clip(output, 0., 1.)
     return output
