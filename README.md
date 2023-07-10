@@ -13,6 +13,9 @@ These notebooks mainly use NumPy and OpenCV for image and data manipulation. A l
     - [ ] Image Degredation
     - [ ] Noise Removal
     - [ ] Image Restoration
+- Image Enhancement
+    - [ ] Intensity Corrections
+    - [ ] Histogram Analysis and Equalization
 - Image and Media Formats
     - [ ] Image Representation
     - [ ] Redundant Data
