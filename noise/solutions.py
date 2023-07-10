@@ -8,7 +8,7 @@ def addSNPNoiseRef(image : np.ndarray, p : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the Salt & Pepper noise will be applied. It should be a
-        np.ndarray with dtype=float64, and with values within [0 1]
+        np.ndarray with dtype=float64.
     - p : float [0 1]
         The p parameter in the S&P noise distribution. Should be in [0 1].
     Returns:
@@ -29,7 +29,7 @@ def addSaltNoiseRef(image : np.ndarray, p : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the salt noise will be applied. It should be a np.ndarray
-        with dtype=float64, and with values within [0 1].
+        with dtype=float64.
     - p : float [0 1]
         The p parameter in the salt noise distribution. Should be in [0 1].
     Returns:
@@ -50,7 +50,7 @@ def addPepperNoiseRef(image : np.ndarray, p : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the pepper noise will be applied. It should be a np.ndarray
-        with dtype=float64, and with values within [0 1].
+        with dtype=float64.
     - p : float [0 1]
         The p parameter in the pepper noise distribution. Should be in [0 1].
     Returns:
@@ -71,7 +71,7 @@ def addUniformNoiseRef(image : np.ndarray, a : float, b : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the Uniform noise will be applied. It should be a
-        np.ndarray with dtype=float64, and with values within [0 1].
+        np.ndarray with dtype=float64.
     - a : float [-1 1]
         The a parameter in the Uniform noise distribution. Should be in [-1 1].
     - b : float [-1 1]
@@ -94,7 +94,7 @@ def addGaussianNoiseRef(image : np.ndarray, sigma : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the Gaussian noise will be applied. It should be a
-        np.ndarray with dtype=float64, and with values within [0 1].
+        np.ndarray with dtype=float64.
     - sigma : float [0 inf)
         The sigma parameter in the Gaussian noise distribution. Should be in [0 inf).
     Returns:
@@ -113,7 +113,7 @@ def addRayleighNoiseRef(image : np.ndarray, sigma : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the Rayleigh noise will be applied. It should be a
-        np.ndarray with dtype=float64, and with values within [0 1].
+        np.ndarray with dtype=float64.
     - sigma : float [0 inf)
         The sigma parameter in the Rayleigh noise distribution. Should be in [0 inf).
     Returns:
@@ -132,7 +132,7 @@ def addErlangNoiseRef(image : np.ndarray, k : int, beta : float) -> np.ndarray:
     Parameters:
     - image : np.ndarray
         An image on which the Erlang noise will be applied. It should be a
-        np.ndarray with dtype=float64, and with values within [0 1].
+        np.ndarray with dtype=float64.
     - k : int [1 inf)
         The k parameter in the Erlang noise distribution. Should be a positive
         integer.
@@ -155,7 +155,7 @@ def padRef(image : np.ndarray, padding : Union[int, Iterable[int]]) -> np.ndarra
     Parameters:
     - image : np.ndarray
         An image on which the padding will be applied. It should be a np.ndarray
-        with dtype=float64, and with values within [0 1].
+        with dtype=float64.
     - padding : Union[int, Iterable[int]]
         The amount of padding that should be applied to the image. Either an
         Iterable of 4 integers, in which case each integers determines the
@@ -456,3 +456,4 @@ def bilateralFilterRef(image : np.ndarray, kernel_shape : Iterable[int], spatial
     intensity_function = gaussian(view - image[:,:,np.newaxis,np.newaxis], intensity_sigma)
     output = np.sum(spatial_kernel * intensity_function * view, axis=(-1, -2)) / np.sum(spatial_kernel * intensity_function, axis=(-1, -2))
     return output
+    
