@@ -487,3 +487,106 @@ def noiseGeneratorRef(noise_shape : Iterable[int], s : float) -> np.ndarray:
     noise = z[noise]
 
     return noise
+
+# From frequency filtering
+def padRef(image : np.ndarray) -> np.ndarray:
+    """
+    Parameters:
+    - image : np.ndarray
+        A grayscale image whose Fourier transform will be calculated.
+    Returns:
+    - output : np.ndarray
+        The padded image, with twice the size.
+    """
+    assert isinstance(image, np.ndarray) and image.ndim == 2, 'Parameter \'image\' should be an np.ndarray.'
+    
+    h, w = image.shape
+    output = np.zeros((h*2, w*2), dtype=image.dtype)
+    output[:h,:w] = image
+    output[h:,:w] = np.flip(image, axis=0)
+    output[:h,w:] = np.flip(image, axis=1)
+    output[h:,w:] = np.flip(image, axis=[0, 1])
+    
+    return output
+
+def notchFilterRef(image : np.ndarray, notch_center : Iterable[float], radius : float) -> np.ndarray:
+    """
+    Parameters:
+    - image : np.ndarray
+        An image on which the notch filter will be applied. Should be an np.ndarray
+        with dtype=np.float64.
+    - notch_center : Iterable[float]
+        An Iterable of two floats which determines the position of the removed notch.
+    - radius : float
+        The radius of the removed area. Should be a positive number.
+    Returns:
+    - output : np.ndarray
+        The filtered image, which should be an 2-dimensional np.ndarray with
+        dtype=np.float64.
+    """
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(notch_center, Iterable) and len(notch_center) == 2 and \
+    all((isinstance(d, float) or isinstance(d, int)) for d in notch_center), 'Parameter \'notch_center\' should be an Iterable of two numbers.'
+    assert (isinstance(radius, int) or isinstance(radius, float)) and radius > 0, 'Parameter \'spatial_sigma\' should be a positive number.'
+
+    h0, w0 = image.shape
+    image_pad = padRef(image)
+
+    h, w = image_pad.shape
+    pos_i = np.linspace(-(h//2) / h * 2 * np.pi, ((h-1)//2) / h * 2 * np.pi, h).reshape(h, 1)
+    pos_j = np.linspace(-(w//2) / h * 2 * np.pi, ((h-1)//2) / h * 2 * np.pi, h).reshape(1, w)
+
+    u, v = notch_center
+    d1 = (pos_i - u)**2 + (pos_j - v)**2
+    d2 = (pos_i + u)**2 + (pos_j + v)**2
+
+    filter1 = 1 - 1 / (1 + (d1 / radius**2)**3)
+    filter2 = 1 - 1 / (1 + (d2 / radius**2)**3)
+
+    image_f = np.fft.fftshift(np.fft.fft2(image_pad))
+    image_f = image_f * filter1 * filter2
+    output = np.real(np.fft.ifft2(np.fft.ifftshift(image_f)))[:h0,:w0]
+
+    return output
+
+def phobosFilterRef(image : np.ndarray) -> np.ndarray:
+    """
+    Parameters:
+    - image : np.ndarray
+        An image on which the bilateral filter will be applied. Should be an np.ndarray
+        with dtype=np.float64. Only works for the provided image of Phobos, and possibly
+        some similar images.
+    Returns:
+    - output : np.ndarray
+        The filtered image, which should be an 2-dimensional np.ndarray with
+        dtype=np.float64.
+    """
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+
+    h0, w0 = image.shape
+    image_pad = padRef(image)
+
+    h, w = image_pad.shape
+    pos_i = np.linspace(-(h//2) / h * 2 * np.pi, ((h-1)//2) / h * 2 * np.pi, h).reshape(h, 1)
+    pos_j = np.linspace(-(w//2) / h * 2 * np.pi, ((h-1)//2) / h * 2 * np.pi, h).reshape(1, w)
+
+    radius_center = 1e-1 * np.pi
+    radius_line = 2e-2 * np.pi
+    order = 10
+    
+    d1 = (pos_i / radius_line)**2
+    d2 = (pos_j / radius_line)**2
+    d3 = (pos_i / radius_center)**2 + (pos_j / radius_center)**2
+    
+    filter1 = 1 - 1 / (1 + d1**order)
+    filter2 = 1 - 1 / (1 + d2**order)
+    filter3 = 1 / (1 + d3**order)
+
+    filter1 = np.clip(filter1 + filter3, 0., 1.)
+    filter2 = np.clip(filter2 + filter3, 0., 1.)
+
+    image_f = np.fft.fftshift(np.fft.fft2(image_pad))
+    image_f = image_f * filter1 * filter2
+    output = np.real(np.fft.ifft2(np.fft.ifftshift(image_f)))[:h0,:w0]
+
+    return output

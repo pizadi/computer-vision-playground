@@ -133,4 +133,5 @@ def drawGaussianCrossSection(f : float, w : float, resolution : int) -> None:
     plt.axis((0, 2, -0.01, 1))
     _ = plt.plot(pos / np.pi, gaussian_low_pass + gaussian_high_pass, 'r-')
     plt.title(f'Cross section of a Gaussian BRF with f={f/np.pi:.4f}*pi and W={w/np.pi:.4f}*pi')
-    
+
+
