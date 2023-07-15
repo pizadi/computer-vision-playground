@@ -15,7 +15,7 @@ def addSNPNoiseRef(image : np.ndarray, p : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert (isinstance(p, float) or isinstance(p, int)) and p >= 0 and p <= 1, 'Parameter \'p\' should be a number within [0 1].'
 
     snp_map = random.randint(0, 2, image.shape) * 2 - 1
@@ -36,7 +36,7 @@ def addSaltNoiseRef(image : np.ndarray, p : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert (isinstance(p, float) or isinstance(p, int)) and p >= 0 and p <= 1, 'Parameter \'p\' should be a number within [0 1].'
 
     snp_map = random.randint(0, 2, image.shape)
@@ -57,7 +57,7 @@ def addPepperNoiseRef(image : np.ndarray, p : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert (isinstance(p, float) or isinstance(p, int)) and p >= 0 and p <= 1, 'Parameter \'p\' should be a number within [0 1].'
 
     snp_map = random.randint(0, 2, image.shape) - 1
@@ -80,7 +80,7 @@ def addUniformNoiseRef(image : np.ndarray, a : float, b : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert (isinstance(a, float) or isinstance(a, int)) and a >= -1 and a <= 1, 'Parameter \'a\' should be a number within [-1 1].'
     assert (isinstance(b, float) or isinstance(b, int)) and b >= -1 and b <= 1, 'Parameter \'b\' should be a number within [-1 1].'
     assert a <= b, 'Parameter \'a\' should be less than or equal to \'b\'.'
@@ -101,7 +101,7 @@ def addGaussianNoiseRef(image : np.ndarray, sigma : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert (isinstance(sigma, float) or isinstance(sigma, int)) and sigma >= 0, 'Parameter \'sigma\' should be a non-negative number.'
 
     output = image + random.normal(0, sigma, size=image.shape)
@@ -120,7 +120,7 @@ def addRayleighNoiseRef(image : np.ndarray, sigma : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert (isinstance(sigma, float) or isinstance(sigma, int)) and sigma >= 0, 'Parameter \'sigma\' should be a non-negative number.'
 
     output = image + random.rayleigh(sigma, size=image.shape)
@@ -142,7 +142,7 @@ def addErlangNoiseRef(image : np.ndarray, k : int, beta : float) -> np.ndarray:
     - output : np.ndarray
         The noisy image, with dtype=np.float64, and values within [0 1].
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'    
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'    
     assert isinstance(k, int) and k > 0, 'Parameter \'k\' should be a positive integer.'
     assert (isinstance(beta, float) or isinstance(beta, int)) and beta > 0, 'Parameter \'sigma\' should be a positive number.'
 
@@ -167,7 +167,7 @@ def padRef(image : np.ndarray, padding : Union[int, Iterable[int]]) -> np.ndarra
     - output : np.ndarray
         The padded image, with dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert ((isinstance(padding, int) and padding >= 0 ) or (isinstance(padding, Iterable)) and len(padding) == 4 and \
            all((isinstance(p, int) and p >= 0) for p in padding)), 'Parameter \'padding\' should either be an integer, or an Iterable of 4 integers of all non-negative values.'
 
@@ -212,7 +212,7 @@ def kernelViewRef(image : np.ndarray, kernel_shape : Iterable[int]):
         The sliding window view, which should be an np.ndarray of 4 dimensions
         with dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers'
 
@@ -253,7 +253,7 @@ def geometricMeanFilterRef(image : np.ndarray, kernel_shape : Iterable[int]) -> 
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     
@@ -276,7 +276,7 @@ def medianFilterRef(image : np.ndarray, kernel_shape : Iterable[int]) -> np.ndar
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     
@@ -301,7 +301,7 @@ def alphaTrimmedMeanFilterRef(image : np.ndarray, kernel_shape : Iterable[int], 
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     assert (isinstance(alpha, float) or isinstance(alpha, int)) and alpha >= 0 and alpha < 1, 'Parameter \'alpha\' should be a number within [0 1).'
@@ -331,7 +331,7 @@ def midpointFilterRef(image : np.ndarray, kernel_shape : Iterable[int]) -> np.nd
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     
@@ -354,7 +354,7 @@ def harmonicFilterRef(image : np.ndarray, kernel_shape : Iterable[int]) -> np.nd
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     
@@ -382,7 +382,7 @@ def contraharmonicFilterRef(image : np.ndarray, kernel_shape : Iterable[int], Q 
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     assert isinstance(Q, int) or isinstance(Q, float), 'Parameter \'Q\' should be a number.'
@@ -411,7 +411,7 @@ def adaptiveFilterRef(image : np.ndarray, kernel_shape : Iterable[int], base_std
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     assert (isinstance(base_std, int) or isinstance(base_std, float)) and base_std >= 0, 'Parameter \'base_std\' should be a non-negative number.'
@@ -444,7 +444,7 @@ def bilateralFilterRef(image : np.ndarray, kernel_shape : Iterable[int], spatial
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
     assert isinstance(kernel_shape, Iterable) and len(kernel_shape) == 2 and \
     all((isinstance(d, int) and d > 0) for d in kernel_shape), 'Parameter \'kernel_shape\' should be an Iterable of two positive integers.'
     assert (isinstance(spatial_sigma, int) or isinstance(spatial_sigma, float)) and spatial_sigma > 0, 'Parameter \'spatial_sigma\' should be a positive number.'
@@ -561,7 +561,7 @@ def phobosFilterRef(image : np.ndarray) -> np.ndarray:
         The filtered image, which should be an 2-dimensional np.ndarray with
         dtype=np.float64.
     """
-    assert isinstance(image, np.ndarray) and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
+    assert isinstance(image, np.ndarray) and image.ndim == 2 and image.dtype == np.float64, 'Parameter \'image\' should be an np.ndarray with dtype=np.float64.'
 
     h0, w0 = image.shape
     image_pad = padRef(image)
