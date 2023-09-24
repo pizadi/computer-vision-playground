@@ -9,13 +9,12 @@ These notebooks mainly use NumPy and OpenCV for image and data manipulation. A l
     - [x] Frequency Filtering
 - Noise
     - [x] Random Noise
-    - [ ] Periodic Noise
+    - [x] Periodic Noise
     - [x] Noise Removal
     - [ ] Image Degredation & Restoration
 - Image Enhancement
     - [ ] Intensity Corrections
     - [ ] Histogram Analysis and Equalization
 - Image and Media Formats
-    - [ ] Image Representation
-    - [ ] Redundant Data
-    - [ ] Compression Techniques
+    - [x] Color Modes
+    - [x] Basics of Compression
