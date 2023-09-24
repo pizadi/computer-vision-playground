@@ -17,4 +17,4 @@ These notebooks mainly use NumPy and OpenCV for image and data manipulation. A l
     - [ ] Histogram Analysis and Equalization
 - Image and Media Formats
     - [x] Color Modes
-    - [x] Basics of Compression
+    - [ ] Basics of Compression
