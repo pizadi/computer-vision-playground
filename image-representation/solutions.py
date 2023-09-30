@@ -1,4 +1,8 @@
 import numpy as np
+import bitarray as bt
+from collections import OrderedDict
+from typing import Iterable, Tuple, Dict, List
+from bitarray.util import canonical_huffman, canonical_decode
 
 def bgr2rgbRef(image : np.ndarray) -> np.ndarray:
     """
@@ -94,4 +98,67 @@ def hsi2rgbRef(image : np.ndarray) -> np.ndarray:
 
     return output
 
+def baboonCompress(image : np.ndarray) -> bt.bitarray:
+    """
+    Parameters:
+    - image : np.ndarray
+        A specific greyscale image of a baboon, in which only 129
+        of the 256 possible pixel values are used.
+    Returns:
+    - output : bt.bitarray
+        The encoded version of the baboon's image, in which each
+        pixel is represented by about 7 bits of data.
+    """
+    assert isinstance(image, np.ndarray) and image.dtype == np.uint8 and image.ndim == 2, 'Parameter \'image\' should be an np.ndarray with ndim=2 and dtype=np.uint8.'
+    assert image.shape == (480, 500), 'Parameter \'image\' should have dimensions of 480x500.'
+    histogram = np.histogram(image,  bins=256, range=(-.5, 255.5))[0]
+    used_bins = histogram > 0
+    assert np.sum(used_bins) == 129, 'Parameter \'image\' should only have 129 intensity values.'
     
+    dict = {i : histogram[i] for i in range(256)}
+    sorted_vals = sorted(dict.items(), key = lambda x : x[1])
+    sorted_vals.reverse()
+    encoding_dict = {}
+    for i, (val, hist) in enumerate(sorted_vals[:127]):
+        encoding_dict[val] = bt.bitarray(f'{i:07b}')
+    encoding_dict[sorted_vals[127][0]] = bt.bitarray(f'{254:b}')
+    encoding_dict[sorted_vals[128][0]] = bt.bitarray(f'{255:b}')
+
+    output = bt.bitarray()
+
+    for pixel in image.flatten():
+        output += encoding_dict[pixel]
+
+    return output
+
+def diffCompressRef(image : np.ndarray) -> Tuple[bt.bitarray, int, Tuple[Dict, List, List]]:
+    """
+    Parameters:
+    - image : np.ndarray
+        A greyscale image, with dtype=np.uint8.
+    Returns:
+    - output : bt.bitarray
+        The compressed version of the image, using Huffman coding
+        and calculating the difference map.
+    - height : int
+        The height of the image, used to extract the rightmost
+        column.
+    - huffman : Tuple[Dict, List, List]
+        The output of the canonical_huffman function.
+    """
+    assert isinstance(image, np.ndarray) and image.dtype == np.uint8 and image.ndim == 2, 'Parameter \'image\' should be an np.ndarray with ndim=2 and dtype=np.uint8.'
+    
+    diffs = image[:,1:] - image[:,:-1]
+    frequencies = np.histogram(diffs,  bins=256, range=(-.5, 255.5))[0]
+
+    huffman_dict, count, symbol_canonical = canonical_huffman({i : frequencies[i] for i in range(256)})
+    
+    output = bt.bitarray()
+    
+    for pixel in image[:,0]:
+        output += bt.bitarray(f'{pixel:08b}')
+        
+    for pixel in diffs.flatten():
+        output += huffman_dict[pixel]
+
+    return output, image.shape[0], (huffman_dict, count, symbol_canonical)
