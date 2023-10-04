@@ -1,4 +1,5 @@
 import numpy as np
+import cv2 as cv
 import bitarray as bt
 from collections import OrderedDict
 from typing import Iterable, Tuple, Dict, List
@@ -67,8 +68,10 @@ def rgb2hsiRef(image : np.ndarray) -> np.ndarray:
     h_mapping = np.float64(image[:,:,1] >= image[:,:,2])
     
     output[:,:,0] = h_mapping * theta + (1 - h_mapping) * (1 - theta)
-    output[:,:,1] = 1 - np.min(image, axis=2) / np.mean(image, axis=2)
+    output[:,:,1] = 1 - np.min(image, axis=2) / (np.mean(image, axis=2) + eps)
     output[:,:,2] = np.mean(image, axis=2)
+
+    output = np.clip(output, 0, 1)
 
     return output
 
@@ -89,14 +92,45 @@ def hsi2rgbRef(image : np.ndarray) -> np.ndarray:
     hp = image[:,:,0] - region / 3
 
     c1 = image[:,:,2] * (1 - image[:,:,1])
-    c2 = image[:,:,2] * (1 + image[:,:,1] * np.cos(hp * 2 * np.pi) / np.cos(hp * 2 * np.pi - np.pi / 3))
+    c2 = image[:,:,2] * (1 + (image[:,:,1] * np.cos(hp * 2 * np.pi) + eps) / (np.cos(hp * 2 * np.pi - np.pi / 3)) + eps)
     c3 = 3 * image[:,:,2] - c1 - c2
 
     output[:,:,0] = (region == 0) * c2 + (region == 1) * c1 + (region == 2) * c3
     output[:,:,1] = (region == 0) * c3 + (region == 1) * c2 + (region == 2) * c1
     output[:,:,2] = (region == 0) * c1 + (region == 1) * c3 + (region == 2) * c2
 
+    output = np.clip(output, 0, 1)
+
     return output
+
+def denoiseHSI(image : np.ndarray) -> np.ndarray:
+    """
+    Parameters:
+    - image : np.ndarray
+        A noisy color image with dtype=np.float64.
+    Returns:
+    - output : np.ndarray
+        The original image, denoised in the HSI space.
+    """
+    assert isinstance(image, np.ndarray) and image.dtype == np.float64 and image.ndim == 3, 'Parameter \'image\' should be an np.ndarray with ndim=3 and dtype=np.float64.'
+
+    h, w, _ = image.shape
+    kernel_size = 5, 5
+
+    image_hsi = rgb2hsiRef(image)
+    image_h_padded = np.zeros((h+4, w+4), dtype=np.float64)
+    image_h_padded[2:-2,2:-2] = image_hsi[:,:,0]
+    
+    view = np.lib.stride_tricks.sliding_window_view(image_h_padded, kernel_size).reshape(h, w, 25) * 2 * np.pi
+    
+    view_i = np.mean(np.sin(view), axis=2)
+    view_j = np.mean(np.cos(view), axis=2)
+    new_view = np.arctan2(view_i, view_j) / 2 / np.pi % 1.
+    
+    image_hsi[:,:,0] = new_view
+    output = hsi2rgbRef(image_hsi)
+    return output
+    
 
 def baboonCompress(image : np.ndarray) -> bt.bitarray:
     """
