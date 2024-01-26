@@ -323,7 +323,7 @@ def butterworthLowPassRef(image : np.ndarray, d : float, order : float) -> np.nd
     pos_i = np.linspace(-(h//2) / h * 2 * np.pi, ((h-1)//2) / h * 2 * np.pi, h).reshape(h, 1)
     pos_j = np.linspace(-(w//2) / h * 2 * np.pi, ((h-1)//2) / h * 2 * np.pi, h).reshape(1, w)
     
-    filter = 1 / (1 + ((pos_i**2 + pos_j**2) / d**2)**order)
+    filter = 1 / np.sqrt(1 + ((pos_i**2 + pos_j**2) / d**2)**order)
 
     image_f = np.fft.fftshift(np.fft.fft2(image_padded))
     image_f_filtered = image_f * filter
